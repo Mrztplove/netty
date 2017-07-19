@@ -125,17 +125,14 @@ public class SpdyFrameCodec extends ByteToMessageDecoder
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        boolean wasRead = read;
-        read = false;
+        resetReadState();
 
-        // Discard bytes of the cumulation buffer if needed.
-        discardSomeReadBytes();
-
-        if (!wasRead) {
+        if (!read) {
             if (!ctx.channel().config().isAutoRead()) {
                 ctx.read();
             }
         } else {
+            read = false;
             ctx.fireChannelReadComplete();
         }
     }

@@ -1167,8 +1167,7 @@ public class SslHandler extends ByteToMessageDecoder implements ChannelOutboundH
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        // Discard bytes of the cumulation buffer if needed.
-        discardSomeReadBytes();
+        resetReadState();
 
         flushIfNeeded(ctx);
         readIfNeeded(ctx);

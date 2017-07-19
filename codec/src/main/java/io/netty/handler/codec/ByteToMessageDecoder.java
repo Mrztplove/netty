@@ -311,18 +311,33 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
         }
     }
 
+    /**
+     * <strong>Import:</strong> If a sub-class overrides this method and not delegate to
+     * {@link super#channelReadComplete(ChannelHandlerContext)} it must call {@link #resetReadState()} in its
+     * {@link #channelReadComplete(ChannelHandlerContext)} implementation.
+     *
+     * {@inheritDoc}
+     */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        numReads = 0;
-        discardSomeReadBytes();
-        if (decodeWasNull) {
-            decodeWasNull = false;
+        boolean notDecoded = decodeWasNull;
+        resetReadState();
+        if (notDecoded) {
             if (!ctx.channel().config().isAutoRead()) {
                 ctx.read();
             }
         } else {
             ctx.fireChannelReadComplete();
         }
+    }
+
+    /***
+     * Reset all temporary state for a full read-loop.
+     */
+    protected void resetReadState() {
+        numReads = 0;
+        discardSomeReadBytes();
+        decodeWasNull = false;
     }
 
     protected final void discardSomeReadBytes() {
